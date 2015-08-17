@@ -1,0 +1,29 @@
+---
+
+- name: add consul dns to docker
+  lineinfile:
+    dest: "{{ docker_service_unit }}"
+    regexp: '^ExecStart=/bin/docker (([^-]*(-(?!-dns=\S+).)+[^-]*)*)'
+    line: 'ExecStart=/bin/docker \1{% for host in docker_dns_hosts %} --dns={{ hostvars[host]["ansible_eth0"]["ipv4"]["address"] }}{% endfor %}'
+    backrefs: yes
+    state: present
+  notify: restart docker
+  tags:
+    - registrator
+
+- name: docker run registrator
+  docker:
+    docker_api_version: "{{ docker_api_version }}"
+    name: registrator
+    image: gliderlabs/registrator:master
+    command: "{{ consul_service_uri }} -ip {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }} -tags from_registrator -resync 300"
+    memory_limit: "{{ memory_limit }}"
+    state: reloaded
+    restart_policy: always
+    net: host
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+  tags:
+    - registrator
+
+
