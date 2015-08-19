@@ -3,11 +3,14 @@
 - name: add consul dns to docker
   lineinfile:
     dest: "{{ docker_service_unit }}"
-    regexp: '^ExecStart=/bin/docker (([^-]*(-(?!-dns=\S+).)+[^-]*)*)'
+    # starts normal, keep non leading dash things, keep -x word things, strip out --dns=\S. things
+    regexp: '^ExecStart=/bin/docker (([^-]*(-(?!-dns=\S+).)+[^-]*)*)\n$'
     line: 'ExecStart=/bin/docker \1{% for host in docker_dns_hosts %} --dns={{ hostvars[host]["ansible_eth0"]["ipv4"]["address"] }}{% endfor %}'
     backrefs: yes
     state: present
-  notify: restart docker
+  notify:
+    - reload systemd
+    - restart docker
   tags:
     - registrator
 
