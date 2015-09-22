@@ -15,7 +15,7 @@ This role currently requires a working VMware Photon server with enabled Docker 
 
 ```
 ---
-- hosts: supercna
+- hosts: registrator
   sudo: True
   roles:
     - registrator
