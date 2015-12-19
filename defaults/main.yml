@@ -13,9 +13,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-# use 512MB, type string, or 0 for unlimited
+# Container memory limit -- Use 512MB, type string, or 0 for unlimited
 memory_limit: 0MB
+
+# The docker systemd unit file to modify if necessary.
 docker_service_unit: /lib/systemd/system/docker.service
+
+# Name server hosts the container should use.
 docker_dns_hosts:
   - "{{ inventory_hostname }}"
+
+# The Consule service endpoint to use for registering.
 consul_service_uri: consul://consul.service.consul:8500
